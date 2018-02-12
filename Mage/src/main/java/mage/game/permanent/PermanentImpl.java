@@ -1125,10 +1125,8 @@ public abstract class PermanentImpl extends CardImpl implements Permanent {
         if (baseAttacker == null) {
             return false;
         }
-        game.informPlayers(baseAttacker.getBandedCards().size() + " banded cards for " + baseAttacker.getLogName());
         List<UUID> attackerIdsToCheck = new ArrayList<>(baseAttacker.getBandedCards()); // handles banding
         attackerIdsToCheck.add(attackerId);
-        game.informPlayers(attackerIdsToCheck.size() + " bandedIds");
         blockCheck:
         for (UUID bandedId : attackerIdsToCheck) {
             Permanent attacker = game.getPermanent(bandedId);
