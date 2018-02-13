@@ -830,19 +830,19 @@ public class CombatGroup implements Serializable, Copyable<CombatGroup> {
     }
 
     public boolean changeDefenderPostDeclaration(UUID newDefenderId, Game game) {
-        for (UUID attackerId : attackers) { // changing defender will remove a banded attacker from its current band
-            Permanent attacker = game.getPermanent(attackerId);
-            if (attacker != null && attacker.getBandedCards() != null) {
-                for (UUID bandedId : attacker.getBandedCards()) {
-                    Permanent banded = game.getPermanent(bandedId);
-                    if (banded != null) {
-                        banded.removeBandedCard(attackerId);
+        if (!defenderId.equals(newDefenderId)) {
+            for (UUID attackerId : attackers) { // changing defender will remove a banded attacker from its current band
+                Permanent attacker = game.getPermanent(attackerId);
+                if (attacker != null && attacker.getBandedCards() != null) {
+                    for (UUID bandedId : attacker.getBandedCards()) {
+                        Permanent banded = game.getPermanent(bandedId);
+                        if (banded != null) {
+                            banded.removeBandedCard(attackerId);
+                        }
                     }
                 }
+                attacker.clearBandedCards();
             }
-            attacker.clearBandedCards();
-        }
-        if (!defenderId.equals(newDefenderId)) {
             Permanent permanent = game.getPermanent(newDefenderId);
             if (permanent != null) {
                 defenderId = newDefenderId;
