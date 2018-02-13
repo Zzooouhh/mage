@@ -92,7 +92,7 @@ class FogPatchEffect extends OneShotEffect {
                 if (attacker != null) {
                     CombatGroup combatGroup = game.getCombat().findGroup(attacker.getId());
                     if (combatGroup != null) {
-                        combatGroup.setBlocked(true, game);
+                        combatGroup.setBlocked(true);
                     }
                 }
             }
