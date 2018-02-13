@@ -124,6 +124,10 @@ public class Combat implements Serializable, Copyable<Combat> {
         return blockingGroups.values();
     }
 
+    public boolean blockingGroupsContains(UUID blockerId) {
+        return blockingGroups.containsKey(blockerId);
+    }
+
     /**
      * Get all possible defender (players and plainwalkers) That does not mean
      * neccessarly mean that they are really attacked
@@ -1254,7 +1258,7 @@ public class Combat implements Serializable, Copyable<Combat> {
     public void addBlockingGroup(UUID blockerId, UUID attackerId, UUID playerId, Game game, boolean solveBanding) {
         Permanent blocker = game.getPermanent(blockerId);
         if (blockerId != null && blocker != null && blocker.getBlocking() > 1) {
-            if (!blockingGroups.containsKey(blockerId)) {
+            if (!blockingGroupsContains(blockerId)) {
                 CombatGroup newGroup = new CombatGroup(playerId, false, playerId);
                 newGroup.blockers.add(blockerId);
                 // add all blocked attackers
