@@ -152,7 +152,7 @@ class SorrowsPathSwitchBlockersEffect extends OneShotEffect {
     }
 
     private CombatGroup findBlockingGroup(Permanent blocker, Game game) {
-        if (game.getCombat().blockingGroupsContains(blocker.getId()) { // if (blocker.getBlocking() > 1) {
+        if (game.getCombat().blockingGroupsContains(blocker.getId())) { // if (blocker.getBlocking() > 1) {
             for (CombatGroup group : game.getCombat().getBlockingGroups()) {
                 if (group.getBlockers().contains(blocker.getId())) {
                     return group;
