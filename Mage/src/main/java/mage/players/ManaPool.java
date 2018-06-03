@@ -117,12 +117,12 @@ public class ManaPool implements Serializable {
      * @return
      */
     public boolean pay(ManaType manaType, Ability ability, Filter filter, Game game, Cost costToPay, Mana usedManaToPay) {
-        if (!autoPayment && manaType != unlockedManaType) {
+        if (!isAutoPayment() && manaType != unlockedManaType) {
             // if manual payment and the needed mana type was not unlocked, nothing will be paid
             return false;
         }
         ManaType possibleAsThoughtPoolManaType = null;
-        if (autoPayment && autoPaymentRestricted && !wasManaAddedBeyondStock() && manaType != unlockedManaType) {
+        if (isAutoPayment() && isAutoPaymentRestricted() && !wasManaAddedBeyondStock() && manaType != unlockedManaType) {
             // if automatic restricted payment and there is already mana in the pool
             // and the needed mana type was not unlocked, nothing will be paid
             if (unlockedManaType != null) {
@@ -151,7 +151,7 @@ public class ManaPool implements Serializable {
                     }
                 }
             }
-            if (possibleAsThoughtPoolManaType == null && manaType != unlockedManaType && autoPayment && autoPaymentRestricted && mana.count() == mana.getStock()) {
+            if (possibleAsThoughtPoolManaType == null && manaType != unlockedManaType && isAutoPayment() && isAutoPaymentRestricted() && mana.count() == mana.getStock()) {
                 // no mana added beyond the stock so don't auto pay this
                 continue;
             }
@@ -465,23 +465,19 @@ public class ManaPool implements Serializable {
     }
 
     public boolean isAutoPayment() {
-        return autoPayment;
+        return autoPayment || forcedToPay;
     }
 
     public void setAutoPayment(boolean autoPayment) {
-        if (!forcedToPay) {
-            this.autoPayment = autoPayment;
-        }
+        this.autoPayment = autoPayment;
     }
 
     public boolean isAutoPaymentRestricted() {
-        return autoPaymentRestricted;
+        return autoPaymentRestricted || forcedToPay;
     }
 
     public void setAutoPaymentRestricted(boolean autoPaymentRestricted) {
-        if (!forcedToPay) {
-            this.autoPaymentRestricted = autoPaymentRestricted;
-        }
+        this.autoPaymentRestricted = autoPaymentRestricted;
     }
 
     public ManaType getUnlockedManaType() {
