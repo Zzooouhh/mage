@@ -240,7 +240,7 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
         boolean wasUnlockedManaType = (pool.getUnlockedManaType() != null);
         if (!pool.isAutoPayment() && !wasUnlockedManaType) {
             // if auto payment is inactive and no mana type was clicked manually - do nothing
-            return true;
+            return;
         }
         ManaCosts referenceCosts = null;
         if (pool.isForcedToPay()) {
