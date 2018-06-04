@@ -328,7 +328,6 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
         if (!wasUnlockedManaType) {
             handleForcedToPayOnlyForCurrentPayment(game, pool, referenceCosts);
         }
-        return true;
     }
 
     private void handleForcedToPayOnlyForCurrentPayment(Game game, ManaPool pool, ManaCosts referenceCosts) {
