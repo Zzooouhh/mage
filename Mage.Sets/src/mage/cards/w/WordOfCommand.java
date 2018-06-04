@@ -101,6 +101,7 @@ class WordOfCommandEffect extends OneShotEffect {
                 // and only if mana they produce is spent to activate other mana abilities of lands he or she controls and/or play that card
                 ManaPool manaPool = targetPlayer.getManaPool();
                 manaPool.setForcedToPay(true);
+                manaPool.storeMana();
                 int bookmark = game.bookmarkState();
 
                 if ((card.isLand() && (!targetPlayer.canPlayLand() || !game.getActivePlayerId().equals(targetPlayer.getId())))
@@ -127,7 +128,7 @@ class WordOfCommandEffect extends OneShotEffect {
                 }
             }
             
-            Spell wordOfCommand = game.getSpell(sourceObject.getId());
+            Spell wordOfCommand = game.getSpell(source.getSourceId());
             if (wordOfCommand != null) {
                 wordOfCommand.setCommandedBy(controller.getId()); // You control the player until Word of Command finishes resolving
             } else {
