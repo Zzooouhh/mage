@@ -136,9 +136,7 @@ public class ManaPool implements Serializable {
             if (usableManaType == null) {
                 continue;
             }
-            game.informPlayers("zzzz");
             if (mana.get(usableManaType) > 0) {
-                game.informPlayers("TOOT");
                 GameEvent event = new GameEvent(GameEvent.EventType.MANA_PAID, ability.getId(), mana.getSourceId(), ability.getControllerId(), 0, mana.getFlag());
                 event.setData(mana.getOriginalId().toString());
                 game.fireEvent(event);
