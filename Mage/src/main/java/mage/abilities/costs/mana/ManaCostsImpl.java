@@ -236,21 +236,23 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
     }
 
     @Override
-    public void assignPayment(Game game, Ability ability, ManaPool pool, Cost costToPay) {
-        if (!pool.isAutoPayment() && pool.getUnlockedManaType() == null) {
+    public boolean assignPayment(Game game, Ability ability, ManaPool pool, Cost costToPay) {
+        boolean wasUnlockedManaType = (pool.getUnlockedManaType() != null);
+        if (!pool.isAutoPayment() && !wasUnlockedManaType) {
             // if auto payment is inactive and no mana type was clicked manually - do nothing
-            return;
+            return true;
         }
         ManaCosts referenceCosts = null;
         if (pool.isForcedToPay()) {
             referenceCosts = this.copy();
         }
+
         // attempt to pay colorless costs (not generic) mana costs first
         for (ManaCost cost : this) {
             if (!cost.isPaid() && cost instanceof ColorlessManaCost) {
                 cost.assignPayment(game, ability, pool, costToPay);
                 if (pool.isEmpty()) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -259,7 +261,7 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
             if (!cost.isPaid() && cost instanceof ColoredManaCost) {
                 cost.assignPayment(game, ability, pool, costToPay);
                 if (pool.isEmpty()) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -268,7 +270,7 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
             if (!cost.isPaid() && cost instanceof HybridManaCost) {
                 cost.assignPayment(game, ability, pool, costToPay);
                 if (pool.isEmpty()) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -284,7 +286,7 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
                         || ((cost.containsColor(ColoredManaSymbol.U)) && (pool.getBlue() > 0) || pool.ConditionalManaHasManaType(ManaType.BLUE))) {
                     cost.assignPayment(game, ability, pool, costToPay);
                     if (pool.isEmpty() && pool.getConditionalMana().isEmpty()) {
-                        return;
+                        return true;
                     }
                 }
             }
@@ -294,7 +296,7 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
             if (!cost.isPaid() && cost instanceof MonoHybridManaCost) {
                 cost.assignPayment(game, ability, pool, costToPay);
                 if (pool.isEmpty()) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -303,7 +305,7 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
             if (!cost.isPaid() && cost instanceof SnowManaCost) {
                 cost.assignPayment(game, ability, pool, costToPay);
                 if (pool.isEmpty()) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -312,7 +314,7 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
             if (!cost.isPaid() && cost instanceof GenericManaCost) {
                 cost.assignPayment(game, ability, pool, costToPay);
                 if (pool.isEmpty()) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -324,7 +326,10 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
         }
         // stop using mana of the clicked mana type
         pool.lockManaType();
-        handleForcedToPayOnlyForCurrentPayment(game, pool, referenceCosts);
+        if (!wasUnlockedManaType) {
+            handleForcedToPayOnlyForCurrentPayment(game, pool, referenceCosts);
+        }
+        return true;
     }
 
     private void handleForcedToPayOnlyForCurrentPayment(Game game, ManaPool pool, ManaCosts referenceCosts) {
@@ -336,6 +341,7 @@ public class ManaCostsImpl<T extends ManaCost> extends ArrayList<T> implements M
                 if (player != null) {
                     game.undo(playerId);
                     this.clearPaid();
+                    player.getManaPool().restoreMana(pool.getPoolBookmark());
                     game.bookmarkState();
                 }
             }
