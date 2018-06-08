@@ -596,7 +596,6 @@ public abstract class PlayerImpl implements Player, Serializable {
                     isGameUnderControl = false;
                 }
             }
-            
         }
     }
 
@@ -2742,7 +2741,7 @@ public abstract class PlayerImpl implements Player, Serializable {
      * @param game
      * @return
      */
-    public boolean canPlay(ActivatedAbility ability, ManaOptions available, MageObject sourceObject, Game game) {
+    protected boolean canPlay(ActivatedAbility ability, ManaOptions available, MageObject sourceObject, Game game) {
         if (!(ability instanceof ActivatedManaAbilityImpl)) {
             ActivatedAbility copy = ability.copy();
             copy.setCheckPlayableMode(); // prevents from endless loops for asking player to use effects by checking this mode
