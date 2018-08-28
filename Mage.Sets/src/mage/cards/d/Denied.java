@@ -4,7 +4,7 @@ package mage.cards.d;
 import java.util.UUID;
 import mage.abilities.Ability;
 import mage.abilities.effects.OneShotEffect;
-import mage.abilities.effects.common.NameACardEffect;
+import mage.abilities.effects.common.ChooseACardNameEffect;
 import mage.cards.Card;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
@@ -25,7 +25,7 @@ public final class Denied extends CardImpl {
         super(ownerId,setInfo,new CardType[]{CardType.INSTANT},"{U}");
         
         // Choose a card name, then target spell's controller reveals their hand. If a card with the chosen name is revealed this way, counter that spell.
-        this.getSpellAbility().addEffect(new NameACardEffect(NameACardEffect.TypeOfName.ALL));
+        this.getSpellAbility().addEffect(new ChooseACardNameEffect(ChooseACardNameEffect.TypeOfName.ALL));
         this.getSpellAbility().addEffect(new DeniedEffect());
         this.getSpellAbility().addTarget(new TargetSpell());
     }
@@ -58,7 +58,7 @@ class DeniedEffect extends OneShotEffect {
             return true;
         }
         Player player = game.getPlayer(targetSpell.getControllerId());
-        Object object = (String) game.getState().getValue(source.getSourceId().toString() + NameACardEffect.INFO_KEY);
+        Object object = (String) game.getState().getValue(source.getSourceId().toString() + ChooseACardNameEffect.INFO_KEY);
         if (player != null && object instanceof String) {
             player.revealCards("Denied!", player.getHand(), game, true);
             String namedCard = (String) object;
