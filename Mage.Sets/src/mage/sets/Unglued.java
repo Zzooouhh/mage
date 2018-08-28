@@ -26,7 +26,7 @@ public final class Unglued extends ExpansionSet {
         cards.add(new SetCardInfo("Chicken Egg", 41, Rarity.COMMON, mage.cards.c.ChickenEgg.class));
         cards.add(new SetCardInfo("Clambassadors", 18, Rarity.COMMON, mage.cards.c.Clambassadors.class));
         cards.add(new SetCardInfo("Clam-I-Am", 19, Rarity.COMMON, mage.cards.c.ClamIAm.class));
-        cards.add(new SetCardInfo("Denied", 22, Rarity.COMMON, mage.cards.d.Denied.class));
+        cards.add(new SetCardInfo("Denied!", 22, Rarity.COMMON, mage.cards.d.Denied.class));
         cards.add(new SetCardInfo("Elvish Impersonators", 56, Rarity.COMMON, mage.cards.e.ElvishImpersonators.class));
         cards.add(new SetCardInfo("Flock of Rabid Sheep", 57, Rarity.UNCOMMON, mage.cards.f.FlockOfRabidSheep.class));
         cards.add(new SetCardInfo("Forest", 88, Rarity.LAND, mage.cards.basiclands.Forest.class, new CardGraphicInfo(FrameStyle.UGL_FULL_ART_BASIC, false)));
