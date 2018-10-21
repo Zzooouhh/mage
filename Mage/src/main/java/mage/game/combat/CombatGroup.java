@@ -5,10 +5,12 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Stream;
 
+import mage.abilities.Ability;
 import mage.abilities.common.ControllerAssignCombatDamageToBlockersAbility;
 import mage.abilities.common.ControllerDivideCombatDamageAbility;
 import mage.abilities.common.DamageAsThoughNotBlockedAbility;
 import mage.abilities.keyword.BandingAbility;
+import mage.abilities.keyword.BandsWithOtherAbility;
 import mage.abilities.keyword.CantBlockAloneAbility;
 import mage.abilities.keyword.DeathtouchAbility;
 import mage.abilities.keyword.DoubleStrikeAbility;
@@ -108,6 +110,28 @@ public class CombatGroup implements Serializable, Copyable<CombatGroup> {
 
     private boolean hasBanding(Permanent perm) {
         return perm.getAbilities().containsKey(BandingAbility.getInstance().getId());
+    }
+
+    private boolean appliesBandsWithOther(List<UUID> creatureIds, Game game) {
+        for (UUID creatureId : creatureIds) {
+            Permanent perm = game.getPermanent(creatureId);
+            if (perm != null && perm.getBandedCards() != null) {
+                for (Ability ability : perm.getAbilities()) {
+                    if (ability.getClass().equals(BandsWithOtherAbility.class)
+                            && perm.hasSubtype(((BandsWithOtherAbility) ability).getSubtype(), game)) {
+                        for (UUID bandedId : creatureIds) {
+                            if (!bandedId.equals(creatureId)) {
+                                Permanent banded = game.getPermanent(bandedId);
+                                if (banded != null && banded.hasSubtype(((BandsWithOtherAbility) ability).getSubtype(), game)) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public void assignDamageToBlockers(boolean first, Game game) {
@@ -837,6 +861,9 @@ public class CombatGroup implements Serializable, Copyable<CombatGroup> {
                 }
             }
         }
+        if (appliesBandsWithOther(attackers, game)) { // 702.21k - both a [quality] creature with “bands with other [quality]” and another [quality] creature (...)
+            return true;
+        }
         return false;
     }
 
@@ -854,6 +881,9 @@ public class CombatGroup implements Serializable, Copyable<CombatGroup> {
                     return true;
                 }
             }
+        }
+        if (appliesBandsWithOther(blockers, game)) { // 702.21j - both a [quality] creature with “bands with other [quality]” and another [quality] creature (...)
+            return true;
         }
         for (Permanent defensiveFormation : game.getBattlefield().getAllActivePermanents(defendingPlayerId)) {
             if (defensiveFormation.getAbilities().containsKey(ControllerAssignCombatDamageToBlockersAbility.getInstance().getId())) {
