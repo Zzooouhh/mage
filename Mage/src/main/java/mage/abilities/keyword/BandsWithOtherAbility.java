@@ -69,7 +69,7 @@ public class BandsWithOtherAbility extends StaticAbility {
         if (subtype != null) {
             return sb.append(' ').append(subtype.getDescription()).append('s').toString();
         } else if (supertype != null) {
-            return sb.append(' ').append(supertype.toString()).append('s').toString();
+            return sb.append(' ').append(supertype.toString()).append(" creatures").toString();
         } else if (name != null) {
             return sb.append(" creatures named ").append(name).toString();
         }
