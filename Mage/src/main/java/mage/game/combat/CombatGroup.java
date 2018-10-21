@@ -116,14 +116,42 @@ public class CombatGroup implements Serializable, Copyable<CombatGroup> {
         for (UUID creatureId : creatureIds) {
             Permanent perm = game.getPermanent(creatureId);
             if (perm != null && perm.getBandedCards() != null) {
-                for (Ability ability : perm.getAbilities()) {
-                    if (ability.getClass().equals(BandsWithOtherAbility.class)
-                            && perm.hasSubtype(((BandsWithOtherAbility) ability).getSubtype(), game)) {
-                        for (UUID bandedId : creatureIds) {
-                            if (!bandedId.equals(creatureId)) {
-                                Permanent banded = game.getPermanent(bandedId);
-                                if (banded != null && banded.hasSubtype(((BandsWithOtherAbility) ability).getSubtype(), game)) {
-                                    return true;
+                for (Ability ab : perm.getAbilities()) {
+                    if (ab.getClass().equals(BandsWithOtherAbility.class)) {
+                        BandsWithOtherAbility ability = (BandsWithOtherAbility) ab;
+                        if (ability.getSubtype() != null) {
+                            if (perm.hasSubtype(ability.getSubtype(), game)) {
+                                for (UUID bandedId : creatureIds) {
+                                    if (!bandedId.equals(creatureId)) {
+                                        Permanent banded = game.getPermanent(bandedId);
+                                        if (banded != null && banded.hasSubtype(ability.getSubtype(), game)) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (ability.getSupertype() != null) {
+                            if (perm.getSuperType().contains(ability.getSupertype())) {
+                                for (UUID bandedId : creatureIds) {
+                                    if (!bandedId.equals(creatureId)) {
+                                        Permanent banded = game.getPermanent(bandedId);
+                                        if (banded != null && banded.getSuperType().contains(ability.getSupertype())) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (ability.getName() != null) {
+                            if (perm.getName().equals(ability.getName())) {
+                                for (UUID bandedId : creatureIds) {
+                                    if (!bandedId.equals(creatureId)) {
+                                        Permanent banded = game.getPermanent(bandedId);
+                                        if (banded != null && banded.getName().equals(ability.getName())) {
+                                            return true;
+                                        }
+                                    }
                                 }
                             }
                         }
