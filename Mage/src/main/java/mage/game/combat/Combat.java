@@ -15,9 +15,12 @@ import mage.filter.StaticFilters;
 import mage.filter.common.FilterControlledCreaturePermanent;
 import mage.filter.common.FilterCreatureForCombatBlock;
 import mage.filter.common.FilterCreaturePermanent;
+import mage.filter.predicate.Predicate;
 import mage.filter.predicate.Predicates;
 import mage.filter.predicate.mageobject.AbilityPredicate;
+import mage.filter.predicate.mageobject.NamePredicate;
 import mage.filter.predicate.mageobject.SubtypePredicate;
+import mage.filter.predicate.mageobject.SupertypePredicate;
 import mage.filter.predicate.permanent.AttackingSameNotBandedPredicate;
 import mage.filter.predicate.permanent.PermanentIdPredicate;
 import mage.game.Game;
@@ -309,32 +312,57 @@ public class Combat implements Serializable, Copyable<Combat> {
                     FilterControlledCreaturePermanent filter = new FilterControlledCreaturePermanent("attacking creature to band with " + attacker.getLogName());
                     filter.add(Predicates.not(new PermanentIdPredicate(creatureId)));
                     filter.add(new AttackingSameNotBandedPredicate(combatGroup.getDefenderId())); // creature that isn't already banded, and is attacking the same player or planeswalker
-                    FilterControlledCreaturePermanent filter2 = filter.copy();
-                    if (canBandWithOther) {
-                        List<SubtypePredicate> predicates = new ArrayList<>();
-                        for (Ability ability : bandsWithOther) {
-                            predicates.add(new SubtypePredicate(((BandsWithOtherAbility) ability).getSubtype()));
+                    List<Predicate<MageObject>> predicates = new ArrayList<>();
+                    if (!canBand && canBandWithOther) {
+                        for (Ability ab : bandsWithOther) {
+                            BandsWithOtherAbility ability = (BandsWithOtherAbility) ab;
+                            if (ability.getSubtype() != null) {
+                                predicates.add(new SubtypePredicate(ability.getSubtype()));
+                            }
+                            if (ability.getSupertype() != null) {
+                                predicates.add(new SupertypePredicate(ability.getSupertype()));
+                            }
+                            if (ability.getName() != null) {
+                                predicates.add(new NamePredicate(ability.getName()));
+                            }
                         }
-                        filter2.add(Predicates.or(predicates));
+                        filter.add(Predicates.or(predicates));
                     }
                     while (player.canRespond()) {
                         TargetControlledPermanent target = new TargetControlledPermanent(1, 1, filter, true);
-                        TargetControlledPermanent target2 = new TargetControlledPermanent(1, 1, filter2, true);
                         target.setRequired(false);
-                        target2.setRequired(false);
                         canBand &= target.canChoose(attackingPlayerId, game);
-                        canBandWithOther &= target2.canChoose(attackingPlayerId, game);
+                        canBandWithOther &= target.canChoose(attackingPlayerId, game);
                         if (game.replaceEvent(GameEvent.getEvent(GameEvent.EventType.DECLARING_ATTACKERS, attackingPlayerId, attackingPlayerId))
                                 || (!canBand && !canBandWithOther)
                                 || !player.chooseUse(Outcome.Benefit, "Do you wish to " + (isBanded ? "band " + attacker.getLogName() + " with another " : "form a band with " + attacker.getLogName() + " and an ") + "attacking creature?", null, game)) {
                             break;
                         }
-                        canBand = (canBand && canBandWithOther ? 
-                                player.chooseUse(Outcome.Detriment, "Choose type of banding ability to apply:", attacker.getLogName(), "Banding", "Bands with other", null, game) : canBand);
-                        if (canBand && target.choose(Outcome.Benefit, attackingPlayerId, null, game)
-                                || !canBand && target2.choose(Outcome.Benefit, attackingPlayerId, null, game)) {
+                        
+                        if (canBand && canBandWithOther) {
+                            if (player.chooseUse(Outcome.Detriment, "Choose type of banding ability to apply:", attacker.getLogName(), "Banding", "Bands with other", null, game)) {
+                                canBandWithOther = false;
+                            } else {
+                                canBand = false;
+                                for (Ability ab : bandsWithOther) {
+                                    BandsWithOtherAbility ability = (BandsWithOtherAbility) ab;
+                                    if (ability.getSubtype() != null) {
+                                        predicates.add(new SubtypePredicate(ability.getSubtype()));
+                                    }
+                                    if (ability.getSupertype() != null) {
+                                        predicates.add(new SupertypePredicate(ability.getSupertype()));
+                                    }
+                                    if (ability.getName() != null) {
+                                        predicates.add(new NamePredicate(ability.getName()));
+                                    }
+                                }
+                                filter.add(Predicates.or(predicates));
+                            }
+                        }
+                        
+                        if (target.choose(Outcome.Benefit, attackingPlayerId, null, game)) {
                             isBanded = true;
-                            for (UUID targetId : (!target.getTargets().isEmpty() ? target.getTargets() : target2.getTargets())) {
+                            for (UUID targetId : target.getTargets()) {
                                 Permanent permanent = game.getPermanent(targetId);
                                 if (permanent != null) {
     
@@ -347,9 +375,20 @@ public class Combat implements Serializable, Copyable<Combat> {
                                     }
                                     permanent.addBandedCard(creatureId);
                                     attacker.addBandedCard(targetId);
-                                    if (canBand && !permanent.getAbilities().containsKey(BandingAbility.getInstance().getId())) {
-                                        filter.add(new AbilityPredicate(BandingAbility.class));
-                                        canBandWithOther = false;
+                                    if (canBand) {
+                                        if (!permanent.getAbilities().containsKey(BandingAbility.getInstance().getId())) {
+                                            filter.add(new AbilityPredicate(BandingAbility.class));
+                                            canBandWithOther = false;
+                                        }
+                                    } else if (canBandWithOther) {
+                                        List<Predicate<MageObject>> newPredicates = new ArrayList<>();
+                                        for (Predicate<MageObject> predicate : predicates) {
+                                            if (predicate.apply(permanent, game)) {
+                                                newPredicates.add(predicate);
+                                            }
+                                        }
+                                        filter.add(Predicates.or(newPredicates));
+                                        canBand = false;
                                     }
                                 }
     
