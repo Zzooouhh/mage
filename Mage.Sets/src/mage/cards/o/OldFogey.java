@@ -8,6 +8,7 @@ import mage.abilities.keyword.BandsWithOtherAbility;
 import mage.abilities.keyword.CumulativeUpkeepAbility;
 import mage.abilities.keyword.EchoAbility;
 import mage.abilities.keyword.FadingAbility;
+import mage.abilities.keyword.FlankingAbility;
 import mage.abilities.keyword.LandwalkAbility;
 import mage.abilities.keyword.PhasingAbility;
 import mage.abilities.keyword.ProtectionAbility;
@@ -57,6 +58,8 @@ public final class OldFogey extends CardImpl {
         this.addAbility(new ProtectionAbility(filter));
         // Snow-covered plainswalk
         this.addAbility(new LandwalkAbility(filter2));
+        // Flanking
+        this.addAbility(new FlankingAbility());
         // Rampage 2
         this.addAbility(new RampageAbility(2));
     }
