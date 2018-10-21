@@ -14,7 +14,7 @@ public class BandsWithOtherAbility extends StaticAbility {
 
     private SubType subtype;
     private SuperType supertype;
-    private String name;
+    private String bandingName;
 
     public BandsWithOtherAbility() {
         this(null, null, null);
@@ -28,22 +28,22 @@ public class BandsWithOtherAbility extends StaticAbility {
         this(null, supertype, null);
     }
 
-    public BandsWithOtherAbility(String name) {
-        this(null, null, name);
+    public BandsWithOtherAbility(String bandingName) {
+        this(null, null, bandingName);
     }
 
-    public BandsWithOtherAbility(SubType subtype, SuperType supertype, String name) {
+    public BandsWithOtherAbility(SubType subtype, SuperType supertype, String bandingName) {
         super(Zone.ALL, null);
         this.subtype = subtype;
         this.supertype = supertype;
-        this.name = name;
+        this.bandingName = bandingName;
     }
 
     public BandsWithOtherAbility(BandsWithOtherAbility ability) {
         super(ability);
         this.subtype = ability.subtype;
         this.supertype = ability.supertype;
-        this.subtype = ability.subtype;
+        this.bandingName = ability.bandingName;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class BandsWithOtherAbility extends StaticAbility {
     }
 
     public String getName() {
-        return name;
+        return bandingName;
     }
 
     @Override
@@ -70,8 +70,8 @@ public class BandsWithOtherAbility extends StaticAbility {
             return sb.append(' ').append(subtype.getDescription()).append('s').toString();
         } else if (supertype != null) {
             return sb.append(' ').append(supertype.toString()).append(" creatures").toString();
-        } else if (name != null) {
-            return sb.append(" creatures named ").append(name).toString();
+        } else if (bandingName != null) {
+            return sb.append(" creatures named ").append(bandingName).toString();
         }
         return "all \"" + sb.toString() + "\" abilities";
     }
